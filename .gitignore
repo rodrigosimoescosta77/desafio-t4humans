@@ -1,0 +1,22 @@
+# Ambiente
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# Streamlit
+.streamlit/
+
+# Dados gerados
+data/solicitacoes_aumento_limite.csv
+
+# OS
+.DS_Store
+Thumbs.db
