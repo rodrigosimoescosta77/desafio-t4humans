@@ -26,7 +26,7 @@ git init
 
 ```powershell
 git config --global user.name "Rodrigo Simoes"
-git config --global user.email "rodrigo.costa-ext@dex.co"
+git config --global user.email "rsc@ecomp.poli.br"
 ```
 
 ---
