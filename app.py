@@ -33,6 +33,15 @@ st.markdown("""
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Sora:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 
+/* Toolbar do Streamlit recolhida, aparece no hover */
+header[data-testid="stHeader"] {
+    opacity: 0 !important;
+    transition: opacity 0.3s ease !important;
+}
+header[data-testid="stHeader"]:hover {
+    opacity: 1 !important;
+}
+
 /* Reset e base */
 html, body, [class*="css"] {
     font-family: 'Sora', sans-serif;
@@ -91,7 +100,7 @@ section[data-testid="stSidebar"] * {
 /* Mensagens do usuário */
 .msg-user {
     background: linear-gradient(135deg, #0077b6, #023e8a);
-    color: white;
+    color: blue !important;
     border-radius: 18px 18px 4px 18px;
     padding: 12px 18px;
     max-width: 75%;
@@ -187,7 +196,7 @@ section[data-testid="stSidebar"] * {
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(0, 180, 216, 0.3) !important;
     border-radius: 12px !important;
-    color: #e0e8f0 !important;
+    color: #0077b6 !important;
     font-family: 'Sora', sans-serif !important;
 }
 
@@ -399,11 +408,11 @@ st.markdown("""
 # ---------------------------------------------------------------------------
 
 if not st.session_state.iniciado:
-    api_key = os.getenv("GOOGLE_API_KEY", "")
+    api_key = os.getenv("GROQ_API_KEY", "")
     if not api_key:
         st.warning(
-            "⚠️ Defina a variável de ambiente `GOOGLE_API_KEY` para usar o sistema. "
-            "Consulte o README para instruções."
+            "⚠️ Defina a variável de ambiente `GROQ_API_KEY` para usar o sistema. "
+            "Obtenha sua chave gratuita em: https://console.groq.com/keys"
         )
         st.stop()
 

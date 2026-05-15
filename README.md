@@ -1,6 +1,6 @@
 # 🏦 Banco Ágil — Sistema Multi-Agente de Atendimento Bancário
 
-Sistema de atendimento ao cliente bancário baseado em múltiplos agentes de IA, construído com **LangGraph** e **Gemini**. Cada agente possui escopo definido e responsabilidades claras, operando de forma transparente para o cliente como um único assistente virtual coeso.
+Sistema de atendimento ao cliente bancário baseado em múltiplos agentes de IA, construído com **LangGraph** e **Groq (Llama 3.3 70B)**. Cada agente possui escopo definido e responsabilidades claras, operando de forma transparente para o cliente como um único assistente virtual coeso.
 
 ---
 
@@ -66,7 +66,7 @@ banco_agil/
 
 1. O usuário digita na interface Streamlit
 2. `BancoAgilSession.processar_mensagem()` detecta intenção e atualiza o agente ativo
-3. `banco_graph.invoke()` executa o nó do agente com o LLM (Gemini)
+3. `banco_graph.invoke()` executa o nó do agente com o LLM (Groq — Llama 3.3 70B)
 4. Se o LLM retornar uma tool call, o `ToolNode` executa a ferramenta
 5. O resultado volta ao LLM para formulação da resposta final
 6. O estado é atualizado (autenticação, score, encerramento, etc.)
@@ -168,7 +168,7 @@ score = (renda / (despesas + 1)) * 30
 | Decisão | Escolha | Justificativa |
 |---|---|---|
 | Framework de agentes | **LangGraph** | Grafo de estados com controle explícito de fluxo — ideal para transições condicionais entre agentes |
-| LLM | **Gemini 2.0 Flash** | Free tier generoso, latência baixa, excelente para demos ao vivo |
+| LLM | **Groq — Llama 3.3 70B** | API gratuita, latência extremamente baixa (inferência em hardware dedicado), sem necessidade de cartão de crédito |
 | API de câmbio | **AwesomeAPI** | Gratuita, sem autenticação, cobertura ampla de pares de moedas |
 | Persistência | **CSV** | Requisito do desafio; simples e sem dependências externas |
 | Interface | **Streamlit** | Requisito do desafio; rápido para prototipagem com boa UX |
@@ -181,7 +181,7 @@ score = (renda / (despesas + 1)) * 30
 ### Pré-requisitos
 
 - Python 3.11+
-- Conta Google com acesso ao [Google AI Studio](https://aistudio.google.com/)
+- Conta Groq com acesso ao [Groq Console](https://console.groq.com/keys) (gratuito, sem cartão)
 
 ### 1. Clonar o repositório
 
@@ -206,16 +206,17 @@ pip install -r requirements.txt
 
 ### 4. Configurar a API Key
 
+Crie sua chave gratuita em [console.groq.com/keys](https://console.groq.com/keys) e adicione no `.env`:
+
 ```bash
-# Edite o .env e adicione sua GOOGLE_API_KEY
-GOOGLE_API_KEY=AIza***************
+GROQ_API_KEY=sua_chave_aqui
 ```
 
 Ou exporte diretamente:
 
 ```bash
-export GOOGLE_API_KEY="sua_chave_aqui"  # Linux/Mac
-set GOOGLE_API_KEY=sua_chave_aqui       # Windows
+export GROQ_API_KEY="sua_chave_aqui"  # Linux/Mac
+set GROQ_API_KEY=sua_chave_aqui       # Windows
 ```
 
 ### 5. Executar a aplicação

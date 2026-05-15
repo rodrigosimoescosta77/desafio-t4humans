@@ -7,7 +7,7 @@ import os
 from typing import Literal
 
 from langchain_core.messages import AIMessage, SystemMessage
-from langchain_google_genai import ChatGoogleGenerativeAI
+from langchain_groq import ChatGroq
 from langgraph.graph import END, StateGraph
 from langgraph.prebuilt import ToolNode
 
@@ -26,10 +26,10 @@ from utils.state import BancoAgilState
 # ---------------------------------------------------------------------------
 
 def _get_llm():
-    api_key = os.getenv("GOOGLE_API_KEY", "")
-    return ChatGoogleGenerativeAI(
-        model="gemini-2.0-flash",
-        google_api_key=api_key,
+    api_key = os.getenv("GROQ_API_KEY", "")
+    return ChatGroq(
+        model="llama-3.3-70b-versatile",
+        groq_api_key=api_key,
         temperature=0.2,
     )
 
