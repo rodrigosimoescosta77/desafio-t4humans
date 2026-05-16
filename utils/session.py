@@ -8,7 +8,10 @@ from typing import Optional
 from langchain_core.messages import HumanMessage
 
 from agents.graph import banco_graph
+from utils.logging_config import setup_logging
 from utils.state import BancoAgilState
+
+logger = setup_logging()
 
 
 class BancoAgilSession:
@@ -25,6 +28,10 @@ class BancoAgilSession:
     _KEYWORDS_ENTREVISTA = [
         "entrevista", "score", "pontuação", "pontuacao", "análise financeira"
     ]
+    _AFIRMACOES = [
+        "sim", "quero", "aceito", "interesse", "pode", "vamos", "ok",
+        "claro", "com certeza", "gostaria", "por favor", "favor",
+    ]
 
     def __init__(self):
         self.state: BancoAgilState = {
@@ -38,6 +45,7 @@ class BancoAgilSession:
             "agente_atual": "triagem",
             "encerrado": False,
             "entrevista_concluida": False,
+            "entrevista_ofertada": False,
         }
         self._iniciado = False
 
@@ -66,10 +74,30 @@ class BancoAgilSession:
 
     def _atualizar_agente_por_intencao(self, texto: str):
         """Atualiza o agente atual baseado na intenção detectada na mensagem."""
-        if self.autenticado and self.agente_atual == "triagem":
+        if not self.autenticado:
+            return
+        agente = self.agente_atual
+        texto_lower = texto.lower()
+
+        # Câmbio tem prioridade máxima — redireciona de qualquer agente
+        if any(k in texto_lower for k in self._KEYWORDS_CAMBIO):
+            self.state["agente_atual"] = "cambio"
+            return
+
+        if agente == "triagem":
             intencao = self._detectar_intencao(texto)
             if intencao:
                 self.state["agente_atual"] = intencao
+        elif agente == "credito":
+            if self.state.get("entrevista_ofertada"):
+                # Qualquer resposta do cliente encerra a oferta
+                self.state["entrevista_ofertada"] = False
+                if (any(k in texto_lower for k in self._KEYWORDS_ENTREVISTA)
+                        or any(k in texto_lower for k in self._AFIRMACOES)):
+                    self.state["agente_atual"] = "entrevista"
+            else:
+                if any(k in texto_lower for k in self._KEYWORDS_ENTREVISTA):
+                    self.state["agente_atual"] = "entrevista"
 
     def _verificar_redirecionamento_pos_entrevista(self):
         """Redireciona para crédito após conclusão da entrevista."""
@@ -100,6 +128,12 @@ class BancoAgilSession:
             self.state.update(novo_estado)
         except Exception as e:
             self.state["messages"].pop()  # Remove mensagem problemática
+            logger.exception(
+                "Erro ao processar mensagem do cliente: %s | agente_atual=%s | estado=%s",
+                mensagem,
+                self.agente_atual,
+                {k: self.state.get(k) for k in ["cpf_cliente", "nome_cliente", "agente_atual", "entrevista_ofertada"]},
+            )
             return f"Desculpe, ocorreu um erro interno. Por favor, tente novamente. (Erro: {str(e)})"
 
         # Verificar redirecionamento pós-entrevista

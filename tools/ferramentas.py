@@ -12,6 +12,10 @@ from typing import Optional
 import requests
 from langchain_core.tools import tool
 
+from utils.logging_config import setup_logging
+
+logger = setup_logging()
+
 # Paths
 BASE_DIR = Path(__file__).parent.parent / "data"
 CLIENTES_CSV = BASE_DIR / "clientes.csv"
@@ -67,6 +71,7 @@ def autenticar_cliente(cpf: str, data_nascimento: str) -> dict:
                 }
         return {"autenticado": False, "erro": "CPF ou data de nascimento incorretos."}
     except Exception as e:
+        logger.exception("Falha ao autenticar cliente CPF=%s: %s", cpf, str(e))
         return {"autenticado": False, "erro": f"Erro ao acessar base de dados: {str(e)}"}
 
 
@@ -92,6 +97,7 @@ def consultar_limite_credito(cpf: str) -> dict:
                 }
         return {"erro": "Cliente não encontrado."}
     except Exception as e:
+        logger.exception("Falha ao consultar limite de crédito CPF=%s: %s", cpf, str(e))
         return {"erro": f"Erro ao acessar base de dados: {str(e)}"}
 
 
@@ -102,8 +108,9 @@ def consultar_limite_credito(cpf: str) -> dict:
 @tool
 def solicitar_aumento_limite(cpf: str, novo_limite: float) -> dict:
     """
-    Registra e avalia uma solicitação de aumento de limite de crédito.
-    Verifica o score atual do cliente e aprova ou rejeita conforme score_limite.csv.
+    Verifica no CSV se o score do cliente permite o valor solicitado e grava o resultado.
+    Deve ser chamada sempre que o cliente informar um valor de limite desejado.
+    Parâmetros: cpf (string), novo_limite (float).
     """
     try:
         cpf_limpo = _normalizar_cpf(cpf)
@@ -149,6 +156,15 @@ def solicitar_aumento_limite(cpf: str, novo_limite: float) -> dict:
                 "status_pedido": status,
             })
 
+        # Atualizar limite no clientes.csv quando aprovado
+        if status == "aprovado":
+            for c in clientes:
+                if _normalizar_cpf(c["cpf"]) == cpf_limpo:
+                    c["limite_credito"] = str(novo_limite)
+                    break
+            _salvar_clientes(clientes)
+            logger.info("Limite atualizado CPF=%s: R$ %.2f → R$ %.2f", cliente_dados["cpf"], limite_atual, novo_limite)
+
         return {
             "status": status,
             "cpf": cliente_dados["cpf"],
@@ -160,6 +176,7 @@ def solicitar_aumento_limite(cpf: str, novo_limite: float) -> dict:
             "timestamp": timestamp,
         }
     except Exception as e:
+        logger.exception("Falha ao solicitar aumento de limite CPF=%s: %s", cpf, str(e))
         return {"erro": f"Erro ao processar solicitação: {str(e)}"}
 
 
@@ -194,14 +211,52 @@ def calcular_e_atualizar_score(
         peso_dependentes = {0: 100, 1: 80, 2: 60, 3: 30}
         peso_dividas = {"sim": -100, "não": 100}
 
-        emp_key = tipo_emprego.lower().strip()
-        emp_score = peso_emprego.get(emp_key, 0)
+        try:
+            renda_mensal = float(renda_mensal)
+            despesas_mensais = float(despesas_mensais)
+        except (TypeError, ValueError):
+            msg = "Renda mensal e despesas fixas devem ser números válidos em reais."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
 
+        if renda_mensal <= 0:
+            msg = "Informe uma renda mensal maior que zero."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        if despesas_mensais < 0:
+            msg = "Despesas fixas mensais não podem ser negativas."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        try:
+            num_dependentes = int(num_dependentes)
+        except (TypeError, ValueError):
+            msg = "Número de dependentes deve ser um valor inteiro."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        if num_dependentes < 0:
+            msg = "Número de dependentes não pode ser negativo."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        emp_key = str(tipo_emprego).lower().strip()
+        if emp_key not in peso_emprego:
+            msg = "Tipo de emprego inválido. Informe 'formal', 'autônomo' ou 'desempregado'."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        div_key = str(tem_dividas).lower().strip()
+        if div_key not in peso_dividas:
+            msg = "Resposta inválida para dívidas. Responda apenas 'sim' ou 'não'."
+            logger.warning("Entrada inválida em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
+
+        emp_score = peso_emprego[emp_key]
         dep_key = min(num_dependentes, 3)
         dep_score = peso_dependentes.get(dep_key, 30)
-
-        div_key = tem_dividas.lower().strip()
-        div_score = peso_dividas.get(div_key, 0)
+        div_score = peso_dividas[div_key]
 
         score_raw = (
             (renda_mensal / (despesas_mensais + 1)) * peso_renda
@@ -223,7 +278,9 @@ def calcular_e_atualizar_score(
                 break
 
         if not atualizado:
-            return {"erro": "Cliente não encontrado para atualização."}
+            msg = "Cliente não encontrado para atualização."
+            logger.warning("Falha em calcular_e_atualizar_score CPF=%s: %s", cpf, msg)
+            return {"erro": msg}
 
         _salvar_clientes(clientes)
 
@@ -234,6 +291,7 @@ def calcular_e_atualizar_score(
             "mensagem": "Score atualizado com sucesso.",
         }
     except Exception as e:
+        logger.exception("Erro ao calcular e atualizar score CPF=%s: %s", cpf, str(e))
         return {"erro": f"Erro ao calcular score: {str(e)}"}
 
 
@@ -265,8 +323,10 @@ def consultar_cotacao(moeda: str = "USD") -> dict:
             "atualizacao": info.get("create_date", "N/A"),
         }
     except requests.exceptions.RequestException as e:
+        logger.exception("Falha ao consultar cotação moeda=%s: %s", moeda, str(e))
         return {"erro": f"Falha ao consultar cotação (API indisponível): {str(e)}"}
     except Exception as e:
+        logger.exception("Erro inesperado ao consultar cotação moeda=%s: %s", moeda, str(e))
         return {"erro": f"Erro inesperado: {str(e)}"}
 
 

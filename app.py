@@ -100,7 +100,7 @@ section[data-testid="stSidebar"] * {
 /* Mensagens do usuário */
 .msg-user {
     background: linear-gradient(135deg, #0077b6, #023e8a);
-    color: blue !important;
+    color: #ffffff !important;
     border-radius: 18px 18px 4px 18px;
     padding: 12px 18px;
     max-width: 75%;
@@ -122,6 +122,12 @@ section[data-testid="stSidebar"] * {
     font-size: 0.92rem;
     line-height: 1.6;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.msg-agent *, .msg-user * {
+    background: transparent !important;
+    color: inherit !important;
+    margin: 0 !important;
 }
 
 /* Badge do agente */
@@ -196,7 +202,7 @@ section[data-testid="stSidebar"] * {
     background: rgba(255,255,255,0.05) !important;
     border: 1px solid rgba(0, 180, 216, 0.3) !important;
     border-radius: 12px !important;
-    color: #0077b6 !important;
+    color: #0a1628 !important;
     font-family: 'Sora', sans-serif !important;
 }
 
@@ -408,11 +414,11 @@ st.markdown("""
 # ---------------------------------------------------------------------------
 
 if not st.session_state.iniciado:
-    api_key = os.getenv("GROQ_API_KEY", "")
+    api_key = os.getenv("GOOGLE_API_KEY", "")
     if not api_key:
         st.warning(
-            "⚠️ Defina a variável de ambiente `GROQ_API_KEY` para usar o sistema. "
-            "Obtenha sua chave gratuita em: https://console.groq.com/keys"
+            "⚠️ Defina a variável de ambiente `GOOGLE_API_KEY` para usar o sistema. "
+            "Obtenha sua chave em: https://aistudio.google.com/apikey"
         )
         st.stop()
 
@@ -450,10 +456,12 @@ agente_nomes = {
 }
 
 for msg in st.session_state.historico_chat:
+    # Escapa $ para evitar interpretação LaTeX pelo Streamlit
+    conteudo = msg['content'].replace('$', '&#36;')
     if msg["role"] == "user":
         st.markdown(f"""
         <div style="display:flex; justify-content:flex-end; margin: 6px 0;">
-            <div class="msg-user">{msg['content']}</div>
+            <div class="msg-user">{conteudo}</div>
         </div>
         """, unsafe_allow_html=True)
     else:
@@ -463,7 +471,7 @@ for msg in st.session_state.historico_chat:
         st.markdown(f"""
         <div style="margin: 6px 0;">
             <div class="agent-badge">{icon} {nome}</div>
-            <div class="msg-agent">{msg['content']}</div>
+            <div class="msg-agent">{conteudo}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -479,30 +487,40 @@ if session and session.encerrado:
 # Input do usuário
 # ---------------------------------------------------------------------------
 
+def _processar_e_adicionar(msg: str):
+    """Processa uma mensagem e adiciona ao histórico visual."""
+    st.session_state.historico_chat.append({"role": "user", "content": msg})
+    with st.spinner("Processando..."):
+        try:
+            resposta = session.processar_mensagem(msg)
+            agente_atual = session.agente_atual
+        except Exception:
+            resposta = "Desculpe, ocorreu um erro. Por favor, tente novamente."
+            agente_atual = "triagem"
+    st.session_state.historico_chat.append({
+        "role": "assistant", "content": resposta, "agente": agente_atual
+    })
+    st.rerun()
+
+
 if not (session and session.encerrado):
-    user_input = st.chat_input("Digite sua mensagem...")
-
-    if user_input and user_input.strip():
-        # Adicionar mensagem do usuário ao histórico visual
-        st.session_state.historico_chat.append({
-            "role": "user",
-            "content": user_input.strip(),
-        })
-
-        # Processar com o sistema de agentes
-        with st.spinner("Processando..."):
-            try:
-                resposta = session.processar_mensagem(user_input.strip())
-                agente_atual = session.agente_atual
-            except Exception as e:
-                resposta = f"Desculpe, ocorreu um erro. Por favor, tente novamente."
-                agente_atual = "triagem"
-
-        # Adicionar resposta ao histórico visual
-        st.session_state.historico_chat.append({
-            "role": "assistant",
-            "content": resposta,
-            "agente": agente_atual,
-        })
-
-        st.rerun()
+    # Botões de escolha quando a entrevista de crédito for ofertada
+    if session and session.state.get("entrevista_ofertada"):
+        st.markdown("""
+        <div style="text-align:center; margin: 16px 0 10px;
+                    color: rgba(160,180,200,0.65); font-size: 0.78rem;
+                    letter-spacing: 1px; text-transform: uppercase;">
+            Deseja participar da entrevista de crédito?
+        </div>
+        """, unsafe_allow_html=True)
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.button("✅  Sim, quero participar", use_container_width=True, key="btn_sim"):
+                _processar_e_adicionar("sim, quero a entrevista de crédito")
+        with col2:
+            if st.button("❌  Não, obrigado", use_container_width=True, key="btn_nao"):
+                _processar_e_adicionar("não, obrigado")
+    else:
+        user_input = st.chat_input("Digite sua mensagem...")
+        if user_input and user_input.strip():
+            _processar_e_adicionar(user_input.strip())

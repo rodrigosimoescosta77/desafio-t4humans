@@ -27,3 +27,4 @@ class BancoAgilState(TypedDict):
 
     # Contexto da entrevista de crédito
     entrevista_concluida: bool
+    entrevista_ofertada: bool     # True após rejeição de limite, aguardando resposta do cliente
