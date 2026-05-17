@@ -11,6 +11,7 @@ from tools.ferramentas import (
     consultar_limite_credito,
     encerrar_atendimento,
     solicitar_aumento_limite,
+    validar_cpf,
 )
 from utils.state import BancoAgilState
 from agents.prompts import PROMPTS
@@ -26,7 +27,7 @@ def _get_llm():
     )
 
 
-TOOLS_TRIAGEM = [autenticar_cliente, encerrar_atendimento]
+TOOLS_TRIAGEM = [validar_cpf, autenticar_cliente, encerrar_atendimento]
 TOOLS_CREDITO = [consultar_limite_credito, solicitar_aumento_limite, encerrar_atendimento]
 TOOLS_ENTREVISTA = [calcular_e_atualizar_score, encerrar_atendimento]
 TOOLS_CAMBIO = [consultar_cotacao, encerrar_atendimento]
@@ -50,6 +51,21 @@ def _build_agent_node(agente: str):
         cpf = state.get("cpf_cliente", "")
 
         if agente == "triagem" and not state.get("autenticado"):
+            tentativas_cpf = state.get("tentativas_cpf_invalido", 0)
+            if tentativas_cpf > 0:
+                restantes_cpf = 3 - tentativas_cpf
+                if restantes_cpf <= 0:
+                    contexto += (
+                        f"\n\nALERTA DO SISTEMA: O cliente informou {tentativas_cpf} CPFs inválidos. "
+                        f"Limite de 3 tentativas de CPF atingido — "
+                        f"chame IMEDIATAMENTE `encerrar_atendimento` após informar o cliente.\n"
+                    )
+                else:
+                    contexto += (
+                        f"\n\nCONTEXTO DE VALIDAÇÃO DE CPF: {tentativas_cpf} CPF(s) inválido(s) "
+                        f"informado(s). Restam {restantes_cpf} tentativa(s) antes do encerramento.\n"
+                    )
+
             tentativas = state.get("tentativas_auth", 0)
             if tentativas > 0:
                 restantes = 3 - tentativas

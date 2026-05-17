@@ -16,6 +16,7 @@ class BancoAgilState(TypedDict):
     # Dados de autenticação
     autenticado: bool
     tentativas_auth: int
+    tentativas_cpf_invalido: int
     cpf_cliente: Optional[str]
     nome_cliente: Optional[str]
     limite_credito: Optional[float]

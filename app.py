@@ -378,23 +378,7 @@ with st.sidebar:
     if st.button("🔄 Nova Sessão", use_container_width=True):
         reset_session()
         st.rerun()
-
-    # Dicas de teste
-    st.markdown("""
-    <div class="sidebar-title" style="margin-top: 16px;">Clientes de Teste</div>
-    <div style="font-size: 0.78rem; color: rgba(160,180,200,0.7); line-height: 1.8;">
-        <b style="color: #90caf9;">João Silva</b><br>
-        CPF: 123.456.789-00<br>
-        Nasc: 15/05/1990<br><br>
-        <b style="color: #90caf9;">Maria Souza</b><br>
-        CPF: 987.654.321-00<br>
-        Nasc: 20/11/1985<br><br>
-        <b style="color: #90caf9;">Carlos Oliveira</b><br>
-        CPF: 111.222.333-44<br>
-        Nasc: 08/03/1978
-    </div>
-    """, unsafe_allow_html=True)
-
+      
 # ---------------------------------------------------------------------------
 # Header principal
 # ---------------------------------------------------------------------------

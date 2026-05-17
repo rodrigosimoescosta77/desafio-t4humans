@@ -38,6 +38,7 @@ class BancoAgilSession:
             "messages": [],
             "autenticado": False,
             "tentativas_auth": 0,
+            "tentativas_cpf_invalido": 0,
             "cpf_cliente": None,
             "nome_cliente": None,
             "limite_credito": None,

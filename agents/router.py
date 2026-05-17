@@ -10,10 +10,11 @@ from tools.ferramentas import (
     consultar_limite_credito,
     encerrar_atendimento,
     solicitar_aumento_limite,
+    validar_cpf,
 )
 from utils.state import BancoAgilState
 
-TOOLS_TRIAGEM = [autenticar_cliente, encerrar_atendimento]
+TOOLS_TRIAGEM = [validar_cpf, autenticar_cliente, encerrar_atendimento]
 TOOLS_CREDITO = [consultar_limite_credito, solicitar_aumento_limite, encerrar_atendimento]
 TOOLS_ENTREVISTA = [calcular_e_atualizar_score, encerrar_atendimento]
 TOOLS_CAMBIO = [consultar_cotacao, encerrar_atendimento]
@@ -47,6 +48,9 @@ def tool_node_handler(state: BancoAgilState) -> dict:
             elif content.get("autenticado") is False:
                 tentativas = state.get("tentativas_auth", 0) + 1
                 updates["tentativas_auth"] = tentativas
+            if content.get("valido") is False:
+                tentativas_cpf = state.get("tentativas_cpf_invalido", 0) + 1
+                updates["tentativas_cpf_invalido"] = tentativas_cpf
             if content.get("encerrado") is True:
                 updates["encerrado"] = True
             if "score_novo" in content:

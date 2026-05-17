@@ -32,6 +32,18 @@ def _normalizar_cpf(cpf: str) -> str:
     return re.sub(r"\D", "", cpf)
 
 
+def _validar_cpf_digitos(cpf_limpo: str) -> bool:
+    if len(cpf_limpo) != 11 or len(set(cpf_limpo)) == 1:
+        return False
+    for i, peso_inicial in enumerate([10, 11]):
+        soma = sum(int(cpf_limpo[j]) * (peso_inicial - j) for j in range(peso_inicial - 1))
+        resto = soma % 11
+        digito_esperado = 0 if resto < 2 else 11 - resto
+        if digito_esperado != int(cpf_limpo[9 + i]):
+            return False
+    return True
+
+
 def _ler_clientes() -> list[dict]:
     with open(CLIENTES_CSV, newline="", encoding="utf-8") as f:
         return list(csv.DictReader(f))
@@ -43,6 +55,25 @@ def _salvar_clientes(rows: list[dict]) -> None:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(rows)
+
+
+# ---------------------------------------------------------------------------
+# Ferramenta: Validação de CPF
+# ---------------------------------------------------------------------------
+
+@tool
+def validar_cpf(cpf: str) -> dict:
+    """
+    Valida matematicamente se o CPF informado pelo cliente é válido.
+    Deve ser chamada logo após receber o CPF, antes de solicitar a data de nascimento.
+    Retorna {"valido": True} ou {"valido": False, "mensagem": "..."}.
+    """
+    cpf_limpo = _normalizar_cpf(cpf)
+    if len(cpf_limpo) != 11:
+        return {"valido": False, "mensagem": "CPF inválido, favor informar um CPF válido."}
+    if not _validar_cpf_digitos(cpf_limpo):
+        return {"valido": False, "mensagem": "CPF inválido, favor informar um CPF válido."}
+    return {"valido": True}
 
 
 # ---------------------------------------------------------------------------
