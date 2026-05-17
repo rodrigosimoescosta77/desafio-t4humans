@@ -51,6 +51,11 @@ def tool_node_handler(state: BancoAgilState) -> dict:
             if content.get("valido") is False:
                 tentativas_cpf = state.get("tentativas_cpf_invalido", 0) + 1
                 updates["tentativas_cpf_invalido"] = tentativas_cpf
+            if content.get("status") == "rejeitado" and "novo_limite_solicitado" in content:
+                updates["entrevista_ofertada"] = True
+                updates["limite_credito"] = content.get("limite_atual", state.get("limite_credito"))
+            if content.get("status") == "aprovado" and "novo_limite_solicitado" in content:
+                updates["limite_credito"] = content.get("novo_limite_solicitado", state.get("limite_credito"))
             if content.get("encerrado") is True:
                 updates["encerrado"] = True
             if "score_novo" in content:

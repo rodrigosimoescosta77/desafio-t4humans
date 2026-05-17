@@ -70,9 +70,12 @@ def processar_solicitacao_aumento(state: BancoAgilState, valor: float) -> dict |
     )
     llm = _get_llm()
     response = llm.invoke([HumanMessage(content=prompt)])
-    return {
+    updates = {
         "messages": [response],
         "agente_atual": "credito",
         "encerrado": False,
         "entrevista_ofertada": status == "rejeitado",
     }
+    if status == "aprovado":
+        updates["limite_credito"] = novo_limite_val
+    return updates
