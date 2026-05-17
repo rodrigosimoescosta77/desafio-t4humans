@@ -98,12 +98,26 @@ banco-agil/
 
 ### Modularização de agentes
 
-O projeto agora usa uma arquitetura de agentes modular:
-- `agents/graph.py` monta o grafo e define as transições entre agentes.
-- `agents/router.py` isola o roteamento condicional e a lógica de tool calling.
-- `agents/prompts.py` centraliza os prompts de cada agente para facilitar ajustes.
-- `agents/credito_helpers.py` separa a lógica de reconhecimento de pedidos de aumento de limite.
-- `agents/{triagem,credito,entrevista,cambio}.py` definem nós de agente independentes.
+O projeto usa uma arquitetura de agentes modular, distribuída em três camadas:
+
+**Camada de orquestração (`agents/`)**
+- `agents/graph.py` — monta o grafo LangGraph, registra os nós de agente e define as arestas condicionais.
+- `agents/router.py` — isola os três roteadores (`router_principal`, `router_pos_tool`, `router_tool_call`) e o `tool_node_handler`, responsável por executar ferramentas e propagar atualizações de estado (autenticação, score, encerramento, etc.).
+- `agents/common.py` — fábrica do LLM (`_get_llm`) e construtor genérico de nós (`_build_agent_node`): monta o prompt de sistema dinâmico com contexto do cliente e vincula as ferramentas corretas a cada agente.
+- `agents/prompts.py` — centraliza os system prompts de todos os agentes no dicionário `PROMPTS`, facilitando ajustes sem tocar na lógica.
+- `agents/credito_helpers.py` — helpers de detecção e extração para identificar pedidos de aumento de limite nas mensagens do usuário.
+
+**Nós de agente (`agents/`)**
+- `agents/triagem.py` — nó de autenticação: valida CPF, autentica o cliente e roteia para o agente adequado.
+- `agents/credito.py` — nó de crédito: consulta limite atual e processa solicitações de aumento.
+- `agents/entrevista.py` — nó de entrevista financeira: conduz as perguntas e recalcula o score ao final.
+- `agents/cambio.py` — nó de câmbio: consulta cotações em tempo real via AwesomeAPI.
+
+**Ferramentas e suporte**
+- `tools/ferramentas.py` — todas as ferramentas `@tool` do LangChain disponíveis aos agentes.
+- `utils/state.py` — `BancoAgilState` (TypedDict): estado compartilhado entre todos os nós do grafo.
+- `utils/session.py` — `BancoAgilSession`: gerencia o ciclo de vida da conversa e detecta intenções por palavras-chave para atualizar `agente_atual`.
+- `utils/logging_config.py` — configuração centralizada de logging com alertas opcionais via Slack e e-mail.
 
 Para detalhes internos de cada módulo de agente, consulte `agents/README.md`.
 
@@ -242,6 +256,12 @@ score = (renda / (despesas + 1)) * 30
 | Persistência | **CSV** | Requisito do desafio; simples e sem dependências externas |
 | Interface | **Streamlit** | Requisito do desafio; rápido para prototipagem com boa UX |
 | Contexto dos agentes | **System prompt dinâmico** | Cada agente recebe CPF, nome, limite e score do cliente no prompt — sem repetição no chat |
+
+---
+
+## Escolhas Técnicas
+
+O desafios encontrados e soluções dadas estão detalhadas no documento "LICOES_APRENDIDAS.md"
 
 ---
 
