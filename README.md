@@ -27,7 +27,7 @@ O sistema é construído sobre um **grafo de estados** (LangGraph), onde cada ag
 | Temperatura | 1.0 |
 | Thinking budget | 0 (desabilitado) |
 | Biblioteca | `langchain-google-genai` |
-| Chave de acesso | `GOOGLE_API_KEY` (gratuita em aistudio.google.com) |
+| Chave de acesso | `GOOGLE_API_KEY` (em aistudio.google.com) |
 
 > **Nota:** O thinking mode do Gemini 2.5 Flash foi desativado (`thinking_budget=0`) para evitar que o modelo exponha raciocínio interno nas respostas ao cliente.
 
