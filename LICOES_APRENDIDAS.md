@@ -69,3 +69,16 @@
 ## 12. Aceitação de Entrevista Não Detectada por Texto Livre
 **Problema:** Após o agente de crédito oferecer a entrevista, respostas afirmativas do cliente como "tenho interesse" ou "pode ser" não eram reconhecidas, pois não correspondiam às palavras-chave de entrevista. O agente tentava "agendar" algo inexistente.  
 **Solução:** Introduzir o campo `entrevista_ofertada` no estado. Quando `True`, qualquer palavra afirmativa ("sim", "quero", "aceito", "interesse", etc.) roteia para o agente de entrevista. Na interface, substituir o campo de texto por botões **"Sim, quero participar"** / **"Não, obrigado"** para eliminar ambiguidade.
+
+---
+
+## 13. Data de Nascimento com Dia e Mês Invertidos no CSV
+**Problema:** O cliente Rodrigo Simões Costa não conseguia autenticar mesmo fornecendo os dados corretos. João Silva autenticava normalmente.  
+**Causa raiz:** A data no CSV estava como `1977-04-08` (8 de abril), mas o cliente nasceu em 4 de agosto (`1977-08-04`). O LLM converte corretamente `04/08/1977` (DD/MM/AAAA) para `1977-08-04`, que não batia com o CSV. João Silva não apresentava o problema pois seu dia (15) é maior que 12, tornando a conversão DD/MM inequívoca — o que mascarava o bug.  
+**Solução:** Corrigir o valor no CSV para `1977-08-04`. Atenção ao popular a base: datas no formato YYYY-MM-DD devem seguir a ordem ano-mês-dia, não ano-dia-mês.
+
+---
+
+## 14. Sistema Aceitava Qualquer Número com 11 Dígitos como CPF
+**Problema:** A validação de CPF verificava apenas a quantidade de dígitos. Qualquer sequência de 11 números (ex: `12345678901`, `45611555555555555`) era aceita e avançava para a etapa de data de nascimento.  
+**Solução:** Implementar o algoritmo oficial de validação de CPF com dois dígitos verificadores e rejeição de sequências repetidas (ex: `111.111.111-11`). A ferramenta `validar_cpf` foi criada como `@tool` separado, chamada pelo agente de triagem imediatamente após receber o CPF — antes de solicitar a data de nascimento. Tentativas com CPF inválido são contadas em `tentativas_cpf_invalido` no estado; após 3 tentativas, a sessão é encerrada automaticamente.

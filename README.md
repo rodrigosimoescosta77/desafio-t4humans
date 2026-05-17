@@ -313,16 +313,16 @@ Use os clientes disponíveis na sidebar da aplicação:
 
 | Cliente | CPF | Nascimento | Score |
 |---|---|---|---|
-| João Silva | 123.456.789-00 | 15/05/1990 | 750 |
-| Maria Souza | 987.654.321-00 | 20/11/1985 | 200 |
-| Carlos Oliveira | 111.222.333-44 | 08/03/1978 | 420 |
+| Rodrigo Simões Costa | 023.770.814-01 | 04/08/1977 | 750 |
+| Renata Muniz de Araujo Pelinca | 024.081.514-90 | 01/12/1977 | 200 |
+| Pedro Pelinca Simões | 704.610.094-20 | 31/12/2007 | 420 |
 
 ### Teste 1 — Autenticação e aumento de limite aprovado
-1. CPF `123.456.789-00` | Nasc `15/05/1990` (João Silva, score 750)
+1. CPF `023.770.814-01` | Nasc `04/08/1977` (Rodrigo Simões Costa, score 750)
 2. Solicite aumento para R$ 8.000,00 → **aprovado**
 
 ### Teste 2 — Rejeição e entrevista de crédito
-1. CPF `987.654.321-00` | Nasc `20/11/1985` (Maria Souza, score 200)
+1. CPF `024.081.514-90` | Nasc `01/12/1977` (Renata Muniz de Araujo Pelinca, score 200)
 2. Solicite aumento para R$ 25.000,00 → **rejeitado**
 3. Clique em **"Sim, quero participar"**
 4. Responda a entrevista (renda, emprego, despesas, dependentes, dívidas)
