@@ -345,12 +345,13 @@ Use os clientes disponíveis da aplicação:
 
 ### Teste 2 — Rejeição e entrevista de crédito
 1. CPF `024.081.514-90` | Nasc `01/12/1977` (Renata Muniz de Araujo Pelinca, score 200)
-2. Solicite aumento para R$ 25.000,00 → **rejeitado**
+2. Solicite aumento para R$ 15.000,00 → **rejeitado**
 3. Clique em **"Sim, quero participar"**
 4. Responda a entrevista (renda, emprego, despesas, dependentes, dívidas):
       renda = R$30.000 / 
       emprego = formal / 
-      despesas = R$3000 /
+      despesas = R$1000 /
+      dependentes = 0 /
       dívidas = não 
 5. Verifique o novo score calculado → sistema redireciona ao crédito
 

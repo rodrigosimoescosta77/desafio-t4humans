@@ -6,3 +6,5 @@
 2026-05-17 07:29:27,770 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 15000.00
 2026-05-17 07:57:25,043 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 37000.00
 2026-05-17 08:01:14,602 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 37000.00 → R$ 38000.00
+2026-05-18 15:47:18,619 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 8000.00
+2026-05-18 15:58:47,142 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 1000.00 → R$ 15000.00
