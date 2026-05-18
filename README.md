@@ -242,6 +242,12 @@ score = (renda / (despesas + 1)) * 30
 
 ---
 
+## 🧪 Desafios enfrentados
+
+As informações detelhadas sobre os desafios encontrados e soluções dadas estão no documento "LICOES_APRENDIDAS.md"
+
+---
+
 ## 🛠 Escolhas Técnicas
 
 | Decisão | Escolha | Justificativa |
@@ -256,10 +262,6 @@ score = (renda / (despesas + 1)) * 30
 | Persistência | **CSV** | Requisito do desafio; simples e sem dependências externas |
 | Interface | **Streamlit** | Requisito do desafio; rápido para prototipagem com boa UX |
 | Contexto dos agentes | **System prompt dinâmico** | Cada agente recebe CPF, nome, limite e score do cliente no prompt — sem repetição no chat |
-
-Observação:
-
-Mais detalhes sobre os desafios encontrados e soluções dadas estão detalhadas no documento "LICOES_APRENDIDAS.md"
 
 ---
 
