@@ -257,11 +257,9 @@ score = (renda / (despesas + 1)) * 30
 | Interface | **Streamlit** | Requisito do desafio; rápido para prototipagem com boa UX |
 | Contexto dos agentes | **System prompt dinâmico** | Cada agente recebe CPF, nome, limite e score do cliente no prompt — sem repetição no chat |
 
----
+Observação:
 
-## Escolhas Técnicas
-
-O desafios encontrados e soluções dadas estão detalhadas no documento "LICOES_APRENDIDAS.md"
+Mais detalhes sobre os desafios encontrados e soluções dadas estão detalhadas no documento "LICOES_APRENDIDAS.md"
 
 ---
 
@@ -329,13 +327,15 @@ Acesse [http://localhost:8501](http://localhost:8501) no navegador.
 
 ## 🧪 Roteiro de Testes
 
-Use os clientes disponíveis na sidebar da aplicação:
+Use os clientes disponíveis da aplicação:
 
 | Cliente | CPF | Nascimento | Score |
 |---|---|---|---|
 | Rodrigo Simões Costa | 023.770.814-01 | 04/08/1977 | 750 |
 | Renata Muniz de Araujo Pelinca | 024.081.514-90 | 01/12/1977 | 200 |
 | Pedro Pelinca Simões | 704.610.094-20 | 31/12/2007 | 420 |
+| Manuela Pelinca Simões | 704.610.104-37 | 26/09/2009 | 710 |
+| Mariana Pelinca Simões | 154.121.524-90 | 28/07/2012 | 380 |
 
 ### Teste 1 — Autenticação e aumento de limite aprovado
 1. CPF `023.770.814-01` | Nasc `04/08/1977` (Rodrigo Simões Costa, score 750)
@@ -346,6 +346,10 @@ Use os clientes disponíveis na sidebar da aplicação:
 2. Solicite aumento para R$ 25.000,00 → **rejeitado**
 3. Clique em **"Sim, quero participar"**
 4. Responda a entrevista (renda, emprego, despesas, dependentes, dívidas)
+      renda = R$30.000
+      emprego = formal
+      despesas = R$3000
+      dívidas = não
 5. Verifique o novo score calculado → sistema redireciona ao crédito
 
 ### Teste 3 — Câmbio
