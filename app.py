@@ -14,6 +14,10 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import streamlit as st
 from utils.session import BancoAgilSession
 
+# Usa a função interna _html diretamente, contornando o wrapper de deprecação
+# que emite "Please replace components.v1.html with st.iframe" a cada render.
+_html = st._main._html
+
 # ---------------------------------------------------------------------------
 # Configuração da página
 # ---------------------------------------------------------------------------
@@ -40,6 +44,25 @@ header[data-testid="stHeader"] {
 }
 header[data-testid="stHeader"]:hover {
     opacity: 1 !important;
+}
+
+/* Evita o escurecimento/flicker durante reruns do Streamlit */
+[data-stale="true"], [data-stale="true"] * {
+    opacity: 1 !important;
+    filter: none !important;
+    transition: none !important;
+}
+
+/* Esconde o iframe do components.html sem afetar execução */
+iframe[height="1"] {
+    display: block !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
 }
 
 /* Reset e base */
@@ -508,3 +531,32 @@ if not (session and session.encerrado):
         user_input = st.chat_input("Digite sua mensagem...")
         if user_input and user_input.strip():
             _processar_e_adicionar(user_input.strip())
+
+# Scroll automático: percorre o DOM do pai para encontrar o container scrollável real
+_html("""
+<script>
+function scrollToBottom() {
+    var doc = window.parent.document;
+    // Percorre do body para baixo achando o elemento com scrollHeight > clientHeight
+    var candidates = doc.querySelectorAll('*');
+    var best = null;
+    var bestScroll = 0;
+    for (var i = 0; i < candidates.length; i++) {
+        var el = candidates[i];
+        var diff = el.scrollHeight - el.clientHeight;
+        if (diff > bestScroll) {
+            bestScroll = diff;
+            best = el;
+        }
+    }
+    if (best) {
+        best.scrollTop = best.scrollHeight;
+    } else {
+        window.parent.scrollTo(0, 999999);
+    }
+}
+scrollToBottom();
+setTimeout(scrollToBottom, 200);
+setTimeout(scrollToBottom, 600);
+</script>
+""", height=1)
