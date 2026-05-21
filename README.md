@@ -195,7 +195,7 @@ Resposta extraída → exibida na interface com badge do agente
 4. Número de dependentes
 5. Possui dívidas ativas? (sim / não)
 
-Após coletar todos os dados, chama `calcular_e_atualizar_score`, informa o novo score e redireciona automaticamente ao Agente de Crédito.
+Após coletar todos os dados, chama `calcular_e_atualizar_score`, informa o novo score de forma positiva e pergunta ao cliente o que deseja fazer em seguida — sem mencionar redirecionamento ou troca de etapa.
 
 **Fórmula de score:**
 ```python
@@ -230,7 +230,7 @@ score = (renda / (despesas + 1)) * 30
 - [x] Solicitação de aumento de limite com aprovação/rejeição automática por score
 - [x] Registro persistente de solicitações em CSV com timestamp ISO 8601
 - [x] Entrevista financeira conversacional com recálculo e atualização de score
-- [x] Fluxo completo: crédito → entrevista → crédito com redirecionamento automático
+- [x] Fluxo completo: crédito → entrevista → crédito com transição transparente (sem indicação de redirecionamento ao cliente)
 - [x] Botões "Sim / Não" na interface para aceite ou recusa da entrevista de crédito
 - [x] Cotação de câmbio em tempo real via AwesomeAPI
 - [x] Encerramento controlado em qualquer momento por qualquer agente
@@ -255,7 +255,7 @@ As informações detelhadas sobre os desafios encontrados e soluções dadas est
 | Framework de agentes | **LangGraph** | Grafo de estados com controle explícito de fluxo e roteamento condicional entre nós |
 | LLM | **Gemini 2.5 Flash** | Disponível gratuitamente via Google AI Studio; suporta tool calling; thinking mode desabilitável |
 | Entrada do grafo | **`add_conditional_edges(START, ...)`** | Permite rotear diretamente ao agente correto sem passar pela triagem a cada turno |
-| Chamada de ferramenta financeira | **Python direto + LLM para resposta** | Gemini recusa chamadas de tool para decisões financeiras; solução: Python executa a ferramenta, LLM apenas formata a resposta |
+| Chamada de ferramenta financeira | **Tool calling nativo do LangGraph** | O LLM chama a ferramenta diretamente; o roteador `tools → agente` executa e devolve o resultado ao LLM para que ele formule a resposta final ao cliente |
 | Detecção de intenção | **Palavras-chave no `BancoAgilSession`** | Mais previsível e controlável do que deixar o LLM decidir o redirecionamento |
 | Estado compartilhado | **`BancoAgilState` (TypedDict)** | Persiste dados entre agentes (CPF, score, agente ativo, flags de controle) |
 | API de câmbio | **AwesomeAPI** | Gratuita, sem autenticação, ampla cobertura de pares de moedas |
