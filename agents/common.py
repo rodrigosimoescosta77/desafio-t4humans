@@ -71,9 +71,12 @@ def _build_agent_node(agente: str):
                 restantes = 3 - tentativas
                 if restantes <= 0:
                     contexto += (
-                        f"\n\nALERTA DO SISTEMA: O cliente já realizou {tentativas} chamadas "
-                        f"a autenticar_cliente sem sucesso. Limite de 3 tentativas atingido — "
-                        f"chame IMEDIATAMENTE `encerrar_atendimento` após informar o cliente.\n"
+                        f"\n\nALERTA DO SISTEMA — ENCERRAR AGORA: O cliente realizou {tentativas} "
+                        f"tentativas de autenticação sem sucesso. Limite esgotado. "
+                        f"AÇÃO OBRIGATÓRIA: diga ao cliente que não foi possível confirmar sua identidade "
+                        f"e que o atendimento será encerrado por segurança. "
+                        f"Em seguida, chame IMEDIATAMENTE `encerrar_atendimento`. "
+                        f"NÃO solicite CPF nem data de nascimento novamente.\n"
                     )
                 else:
                     contexto += (
@@ -81,6 +84,13 @@ def _build_agent_node(agente: str):
                         f"autenticar_cliente falharam. Restam {restantes} tentativa(s). "
                         f"Cada tentativa = uma chamada à ferramenta, não uma mensagem individual.\n"
                     )
+
+            cpf_validado = state.get("cpf_validado", "")
+            if cpf_validado and not state.get("autenticado"):
+                contexto += (
+                    f"\n\nCONTEXTO CPF VALIDADO: O CPF '{cpf_validado}' já passou pela validação matemática. "
+                    f"NÃO solicite o CPF novamente. Vá direto ao passo 4: peça apenas a data de nascimento.\n"
+                )
 
         if state.get("autenticado") and cpf:
             contexto += (

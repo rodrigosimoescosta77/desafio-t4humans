@@ -1,3 +1,4 @@
+import json
 from typing import Literal
 
 from langgraph.graph import END
@@ -31,9 +32,16 @@ def tool_node_handler(state: BancoAgilState) -> dict:
 
     updates = {}
 
+    # Mapeia tool_call_id → tool call (nome + args) da última AIMessage
+    tool_call_map = {}
+    for msg in reversed(state["messages"]):
+        if hasattr(msg, "tool_calls") and msg.tool_calls:
+            for tc in msg.tool_calls:
+                tool_call_map[tc["id"]] = tc
+            break
+
     for msg in result.get("messages", []):
         if hasattr(msg, "content"):
-            import json
             try:
                 content = json.loads(msg.content) if isinstance(msg.content, str) else {}
             except Exception:
@@ -51,6 +59,12 @@ def tool_node_handler(state: BancoAgilState) -> dict:
             if content.get("valido") is False:
                 tentativas_cpf = state.get("tentativas_cpf_invalido", 0) + 1
                 updates["tentativas_cpf_invalido"] = tentativas_cpf
+            elif content.get("valido") is True:
+                tool_call_id = getattr(msg, "tool_call_id", None)
+                if tool_call_id and tool_call_id in tool_call_map:
+                    cpf = tool_call_map[tool_call_id]["args"].get("cpf", "")
+                    if cpf:
+                        updates["cpf_validado"] = cpf
             if content.get("status") == "rejeitado" and "novo_limite_solicitado" in content:
                 updates["entrevista_ofertada"] = True
                 updates["limite_credito"] = content.get("limite_atual", state.get("limite_credito"))
