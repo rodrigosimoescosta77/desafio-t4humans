@@ -105,3 +105,6 @@ During task with name 'tools' and id '0008eb7a-ba45-7fab-1578-5d9b8873448f'
 2026-05-26 14:30:10,083 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 40000.00
 2026-05-26 14:32:58,004 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 1000.00 → R$ 1500.00
 2026-05-26 14:34:48,374 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 1500.00 → R$ 5000.00
+2026-05-26 15:23:33,940 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 4000.00
+2026-05-26 15:24:02,520 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 4000.00 → R$ 5000.00
+2026-05-26 16:26:08,100 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 25000.00
