@@ -115,6 +115,11 @@ def _build_agent_node(agente: str):
                 if tc["name"] == "encerrar_atendimento":
                     encerrado = True
 
+        # Encerramento determinístico: não depende do LLM chamar a ferramenta
+        if agente == "triagem" and not state.get("autenticado"):
+            if state.get("tentativas_auth", 0) >= 3 or state.get("tentativas_cpf_invalido", 0) >= 3:
+                encerrado = True
+
         novo_agente = state.get("agente_atual", agente)
         return {
             "messages": [response],
