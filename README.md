@@ -253,7 +253,7 @@ As informações detelhadas sobre os desafios encontrados e soluções dadas est
 | Decisão | Escolha | Justificativa |
 |---|---|---|
 | Framework de agentes | **LangGraph** | Grafo de estados com controle explícito de fluxo e roteamento condicional entre nós |
-| LLM | **Gemini 2.5 Flash** | Disponível gratuitamente via Google AI Studio; suporta tool calling; thinking mode desabilitável |
+| LLM | **Gemini 2.5 Flash** | Disponível via Google AI Studio; suporta tool calling; thinking mode desabilitável |
 | Entrada do grafo | **`add_conditional_edges(START, ...)`** | Permite rotear diretamente ao agente correto sem passar pela triagem a cada turno |
 | Chamada de ferramenta financeira | **Tool calling nativo do LangGraph** | O LLM chama a ferramenta diretamente; o roteador `tools → agente` executa e devolve o resultado ao LLM para que ele formule a resposta final ao cliente |
 | Detecção de intenção | **Palavras-chave no `BancoAgilSession`** | Mais previsível e controlável do que deixar o LLM decidir o redirecionamento |
