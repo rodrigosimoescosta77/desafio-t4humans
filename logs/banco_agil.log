@@ -26,3 +26,79 @@
 2026-05-26 11:03:10,162 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 1000.00 → R$ 2000.00
 2026-05-26 11:04:56,534 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 2000.00 → R$ 20000.00
 2026-05-26 11:49:13,863 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 10000.00
+2026-05-26 14:10:46,258 ERROR banco_agil Erro ao processar mensagem do cliente: 02377081401 | agente_atual=triagem | estado={'cpf_cliente': None, 'nome_cliente': None, 'agente_atual': 'triagem', 'entrevista_ofertada': False}
+Traceback (most recent call last):
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\utils\session.py", line 142, in processar_mensagem
+    novo_estado = banco_graph.invoke(self.state)
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\pregel\main.py", line 3880, in invoke
+    for chunk in self.stream(
+                 ~~~~~~~~~~~^
+        input,
+        ^^^^^^
+    ...<11 lines>...
+        **kwargs,
+        ^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\pregel\main.py", line 2936, in stream
+    for _ in runner.tick(
+             ~~~~~~~~~~~^
+        [t for t in loop.tasks.values() if not t.writes],
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ...<2 lines>...
+        schedule_task=loop.accept_push,
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    ):
+    ^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\pregel\_runner.py", line 207, in tick
+    run_with_retry(
+    ~~~~~~~~~~~~~~^
+        t,
+        ^^
+    ...<10 lines>...
+        },
+        ^^
+    )
+    ^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\pregel\_retry.py", line 585, in run_with_retry
+    return task.proc.invoke(task.input, config)
+           ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\_internal\_runnable.py", line 684, in invoke
+    input = context.run(step.invoke, input, config, **kwargs)
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\_internal\_runnable.py", line 426, in invoke
+    ret = self.func(*args, **kwargs)
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\agents\router.py", line 31, in tool_node_handler
+    result = tool_node.invoke(state)
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\_internal\_runnable.py", line 426, in invoke
+    ret = self.func(*args, **kwargs)
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langgraph\prebuilt\tool_node.py", line 823, in _func
+    executor.map(self._run_one, tool_calls, input_types, tool_runtimes)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langchain_core\runnables\config.py", line 612, in map
+    return super().map(
+           ~~~~~~~~~~~^
+        _wrapped_fn,
+        ^^^^^^^^^^^^
+        *iterables,
+        ^^^^^^^^^^^
+        **kwargs,
+        ^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\concurrent\futures\_base.py", line 608, in map
+    fs = [self.submit(fn, *args) for args in zip(*iterables)]
+          ~~~~~~~~~~~^^^^^^^^^^^
+  File "C:\Users\rpeli\Desktop\Desafio_t4humans\banco-agil\venv\Lib\site-packages\langchain_core\runnables\config.py", line 586, in submit
+    return super().submit(
+           ~~~~~~~~~~~~~~^
+        cast("Callable[..., T]", partial(copy_context().run, func, *args, **kwargs))
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "C:\Python313\Lib\concurrent\futures\thread.py", line 173, in submit
+    raise RuntimeError('cannot schedule new futures after '
+                       'interpreter shutdown')
+RuntimeError: cannot schedule new futures after interpreter shutdown
+During task with name 'tools' and id '0008eb7a-ba45-7fab-1578-5d9b8873448f'
+2026-05-26 14:18:11,025 INFO banco_agil Limite atualizado CPF=023.770.814-01: R$ 5000.00 → R$ 8000.00
+2026-05-26 14:21:54,564 INFO banco_agil Limite atualizado CPF=024.081.514-90: R$ 1000.00 → R$ 10000.00
