@@ -14,8 +14,6 @@ __pycache__/
 # Streamlit
 .streamlit/
 
-# Dados gerados
-data/solicitacoes_aumento_limite.csv
 
 # OS
 .DS_Store
